@@ -1,0 +1,6 @@
+*Recommended to install the latest one only
+pip install Flask
+pip install Keras
+pip install numpy
+pip install scikit-learn
+pip install mysql-connector-python
