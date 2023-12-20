@@ -4,17 +4,28 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import mysql.connector
+from dotenv import load_dotenv
+import os
 app = Flask(__name__)
 
 # Load model
 model = load_model('model_V2.h5')
 
-# connect to database
+# Load environment variables from .env
+load_dotenv()
+
+# Access database connection information
+db_host = os.getenv("DB_HOST")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
+
+# Connect to the database
 db = mysql.connector.connect(
-    host="34.101.114.119",
-    user="root",
-    passwd="9MpDdM).}ev||3D.",
-    database="grant_me",
+    host=db_host,
+    user=db_user,
+    passwd=db_password,
+    database=db_name,
 )
 
 # Load data scholarships from database
