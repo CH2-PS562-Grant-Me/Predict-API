@@ -11,11 +11,9 @@ By using this API, it will bring up any recommended scholarships based on the in
   - [Requirements](#requirements)
   - [Environment Variables](#environment-variables)
 - [Usage](#usage)
-  - [Data Preparation](#data-preparation)
-  - [Clustering](#clustering)
-  - [Model Training](#model-training)
-  - [Model Evaluation](#model-evaluation)
-- [Results](#results)
+- [Database](#database)
+- [Model](#model)
+- [Endpoints](#endpoints)
 - [License](#license)
 
 ## Setup
@@ -29,102 +27,57 @@ You also need to provide *MySQL Server* or your database server
 ### Environment Variables
 ```bash
 # Clone the repository
-git clone https://github.com/CH2-PS562-Grant-Me/MachineLearningGM.git
+git clone https://github.com/CH2-PS562-Grant-Me/Predict-API.git
 
 # Change directory
-cd MachineLearningGM # change with your folder name
+cd PredictAPI # change with your folder name
 
 # Install dependencies
 pip install -r requirements.txt
 ```
+Create a `.env` file with the following variables:
+
+```plaintext
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+```
 ## Usage
 
-In the process of making this model, there are several stages that are carried out and the use of the required data.
+There are a few things that need to be done to use this API:
+1. Run the Flask API
+   ```bash
+   python app.py
+    ```
+   The API will be accessible at `http://127.0.0.1:5000`.
+2. Make a POST request to `http://127.0.0.1:5000/predict` with input data in JSON format:
+   ```plaintext
+   {
+    "IPK": 3.8,
+    "Sertifikasi": 5,
+    "SertifikasiProfesional": 3,
+    "prestasiNasional": 2,
+    "lombaNasional": 1,
+    "prestasiInternasional": 1,
+    "lombaInternasional": 1,
+    "internMagang": 14,
+    "Kepanitiaan": 13
+    }
+   ```
+The API will return a *prediction*, *accuracy percentage*, and *list of related scholarship information*.
 
-### Data Preparation
-For the dataset that we use in csv format, which has several data columns including:
-- GPA value
-- Number of certifications
-- Number of professional certifications
-- Number of national achievements
-- Number of national top 3 competitions
-- Number of international achievements
-- Number of international top 3 competitions
-- Total internship experience (number of months)
-- Total committee experience (number of months)
+## Database
+The API connects to a MySQL database to retrieve scholarship information. Make sure to set up the database connection variables in the `.env` file.
 
-After getting the dataset, data cleaning is carried out starting from separating data from semicolons, replacing empty values to NaN, and changing all data types to float.
+## Model
+The machine learning model `(model_V2.h5)` is loaded during API initialization and used for predictions.
 
-### Clustering
-We use the K-Means algorithm to cluster each data in the dataset.
-```bash
-# Create a k-means model with the desired number of clusters
-kmeans = KMeans(n_clusters=5, random_state=42)
-
-# Add the clustering result column to the dataframe
-data['Cluster'] = kmeans.labels_
-```
-There are 5 clusters initialized, each cluster representing the scholarship types below.
-- cluster[0] = government tag
-- cluster[1] = private tag
-- cluster[2] = organization tag
-- cluster[3] = achievement tag
-- cluster[4] = aid tag
-
-### Model Training
-For the model training process, we used tensorflow.keras which uses 3 hidden layers. Which will be compiled using *adam* optimizer and loss params *sparse_categorical_crossentropy*.
-```bash
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, data['Cluster'], test_size=0.2, random_state=42)
-
-# Define the TensorFlow model
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
-    tf.keras.layers.Dense(32, activation='relu'),
-    tf.keras.layers.Dense(16, activation='relu'),
-    tf.keras.layers.Dense(5, activation='softmax')
-])
-
-# Compile the model
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-```
-### Model Evaluation
-To evaluate the model, we first train it for 10 iterations or epochs. then we evaluate it based on the train and testing data.
-```bash
-# Train the model
-model.fit(X_train, y_train, epochs=10, batch_size=32, verbose=1, validation_data=(X_test, y_test))
-
-# Evaluate the model
-test_loss, test_accuracy = model.evaluate(X_test, y_test)
-```
-## Results
-To check the result, we will try to fill the random input into the model first.
-```bash
-# Inputan baru untuk diprediksi
-new_input = np.array([[3.8, 5, 3, 2, 1, 1, 1, 14, 13]])  # Ganti dengan inputan yang sesuai
-
-# Lakukan standardisasi pada inputan baru
-new_input_scaled = scaler.transform(new_input)
-
-# Lakukan prediksi cluster
-predicted_cluster = kmeans.predict(new_input_scaled)
-
-# Tampilkan hasil prediksi
-print("Inputan masuk ke cluster:", predicted_cluster)
-if predicted_cluster == 0:
-    print("Pemerintah")
-elif predicted_cluster == 1:
-    print("Swasta")
-elif predicted_cluster == 2:
-    print("Organisasi")
-elif predicted_cluster == 3:
-    print("Prestasi")
-elif predicted_cluster == 4:
-    print("Bantuan")
-```
-*output :* 
-*Inputan masuk ke cluster: [1]
-Swasta*
+## Endpoints
+- **Endpoint**: /predict
+- **Method**: POST
+- **Input**: JSON data with features for prediction
+- **Output**: *prediction*, *accuracy percentage*, and *list of related scholarship information*.
 
 ## License
 Copyright © 2023 Pakintaki Group . All rights reserved.
