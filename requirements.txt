@@ -1,7 +1,9 @@
-*Recommended to install the latest one only
-pip install Flask
-pip install Keras
-pip install numpy
-pip install scikit-learn
-pip install mysql-connector-python
-pip install python-dotenv
+Flask==3.0.0
+tensorflow==2.13.0
+numpy==1.24.3
+pandas==2.1.3
+scikit-learn==1.3.2
+keras==2.13.1
+mysql-connector-python==8.2.0
+python-dotenv==1.0.0
+```
